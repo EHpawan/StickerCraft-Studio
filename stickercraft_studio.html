@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StickerCraft Studio - Vectorizer & AI Sticker Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            accent: '#06b6d4',
+                            neon: '#a855f7',
+                            pink: '#ec4899'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .transparent-bg {
+            background-color: #0f172a;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        .checker-board {
+            background-color: #0f172a;
+            background-image: 
+                linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+                linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden bg-slate-950 text-slate-100 antialiased">
+
+    <header class="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 flex items-center justify-between z-30 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-wand-magic-sparkles text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-display font-extrabold text-xl bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent flex items-center gap-2">
+                    StickerCraft <span class="text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold uppercase tracking-wider">Pro Studio</span>
+                </h1>
+                <p class="text-xs text-slate-400">Vector & Sticker Design Suite</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Pro Status Pill -->
+            <button id="proStatusBtn" onclick="toggleProModal()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-500/10 to-purple-500/10 border border-amber-500/30 text-amber-300 hover:border-amber-400/60 transition">
+                <i class="fa-solid fa-crown text-amber-400"></i>
+                <span id="proStatusText">Free Tier</span>
+            </button>
+
+            <button onclick="toggleProModal()" class="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-600/30 transition transform active:scale-95">
+                <i class="fa-solid fa-bolt"></i> Upgrade Pro
+            </button>
+
+            <!-- Export Menu -->
+            <div class="relative">
+                <button id="exportMenuBtn" onclick="toggleExportMenu()" class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition">
+                    <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                </button>
+                <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-64 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl p-2 z-50">
+                    <button onclick="exportPNG(1)" class="w-full flex items-center justify-between px-3 py-2 text-left text-xs hover:bg-slate-800 rounded-lg text-slate-200">
+                        <span><i class="fa-regular fa-image text-emerald-400 mr-2"></i> Standard PNG (1080p)</span>
+                        <span class="text-[10px] bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded font-bold">FREE</span>
+                    </button>
+                    
+                    <button onclick="exportPNG(2)" class="w-full flex items-center justify-between px-3 py-2 text-left text-xs hover:bg-slate-800 rounded-lg text-slate-200 group">
+                        <span class="flex items-center"><i class="fa-solid fa-file-image text-purple-400 mr-2"></i> Ultra HD PNG (4K)</span>
+                        <span class="text-[10px] bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-lock text-[8px]"></i> PRO
+                        </span>
+                    </button>
+
+                    <div class="my-1 border-t border-slate-800"></div>
+
+                    <button onclick="exportSVG()" class="w-full flex items-center justify-between px-3 py-2 text-left text-xs hover:bg-slate-800 rounded-lg text-slate-200 group">
+                        <span class="flex items-center"><i class="fa-solid fa-bezier-curve text-cyan-400 mr-2"></i> Clean Vector SVG</span>
+                        <span class="text-[10px] bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-lock text-[8px]"></i> PRO
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Navigation & Controls -->
+        <aside class="w-full md:w-96 border-r border-slate-800 bg-slate-900 flex flex-col shrink-0 z-20 h-full overflow-hidden">
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-800 bg-slate-950/50 p-1 gap-1">
+                <button onclick="switchTab('image')" id="tab-btn-image" class="tab-btn active flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 text-indigo-400 bg-slate-800">
+                    <i class="fa-solid fa-image"></i> Source
+                </button>
+                <button onclick="switchTab('adjust')" id="tab-btn-adjust" class="tab-btn flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-sliders"></i> Adjust
+                </button>
+                <button onclick="switchTab('outline')" id="tab-btn-outline" class="tab-btn flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-paintbrush"></i> Style
+                </button>
+                <button onclick="switchTab('elements')" id="tab-btn-elements" class="tab-btn flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-shapes"></i> Layers
+                </button>
+                <button onclick="switchTab('aipro')" id="tab-btn-aipro" class="tab-btn flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 text-amber-400 hover:bg-amber-500/10">
+                    <i class="fa-solid fa-wand-magic"></i> AI Suite
+                </button>
+            </div>
+
+            <!-- Scrollable Controls -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-6">
+
+                <!-- TAB 1: SOURCE IMAGE & PRESETS -->
+                <div id="tab-content-image" class="tab-content space-y-5">
+                    <div id="dailyUsageBanner" class="p-3 rounded-xl bg-slate-950 border border-indigo-500/30 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-battery-three-quarters text-indigo-400"></i>
+                            <div>
+                                <p class="text-xs font-bold text-slate-200">Daily Upload Usage</p>
+                                <p class="text-[10px] text-slate-400"><span id="usedUploadsCount" class="text-indigo-400 font-bold">0</span> / 2 Free Used Today</p>
+                            </div>
+                        </div>
+                        <button onclick="togglePricingModal()" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition">Upgrade Pro</button>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Upload Custom Image</label>
+                        <div onclick="triggerFileUpload()" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-950/50 hover:bg-indigo-950/20 rounded-xl p-5 text-center cursor-pointer transition group">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-500 group-hover:text-indigo-400 mb-2 transition"></i>
+                            <p class="text-xs font-medium text-slate-300">Click to browse or drag & drop</p>
+                            <p class="text-[10px] text-slate-500 mt-1">PNG, JPG, WEBP formats supported</p>
+                            <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Or Choose Preset Graphic</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="loadPresetSample('cat')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex flex-col items-center gap-1 transition">
+                                <span class="text-2xl">🐱</span>
+                                <span class="text-[10px] text-slate-400">Cyber Cat</span>
+                            </button>
+                            <button onclick="loadPresetSample('skull')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex flex-col items-center gap-1 transition">
+                                <span class="text-2xl">💀</span>
+                                <span class="text-[10px] text-slate-400">Skull</span>
+                            </button>
+                            <button onclick="loadPresetSample('rocket')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex flex-col items-center gap-1 transition">
+                                <span class="text-2xl">🚀</span>
+                                <span class="text-[10px] text-slate-400">Rocket</span>
+                            </button>
+                            <button onclick="loadPresetSample('badge')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex flex-col items-center gap-1 transition">
+                                <span class="text-2xl">🛡️</span>
+                                <span class="text-[10px] text-slate-400">Mascot</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: ADJUSTMENTS -->
+                <div id="tab-content-adjust" class="tab-content hidden space-y-5">
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-indigo-300 flex items-center gap-1.5"><i class="fa-solid fa-sliders"></i> Image Adjustments</span>
+                            <button onclick="resetImageAdjustments()" class="text-[10px] text-slate-400 hover:text-slate-200 underline">Reset All</button>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Brightness</span>
+                                <span id="brightVal" class="text-indigo-400 font-mono">100%</span>
+                            </div>
+                            <input type="range" id="brightSlider" min="0" max="200" value="100" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Contrast</span>
+                                <span id="contrastVal" class="text-indigo-400 font-mono">100%</span>
+                            </div>
+                            <input type="range" id="contrastSlider" min="0" max="200" value="100" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Saturation</span>
+                                <span id="saturateVal" class="text-indigo-400 font-mono">100%</span>
+                            </div>
+                            <input type="range" id="saturateSlider" min="0" max="200" value="100" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Hue Shift</span>
+                                <span id="hueVal" class="text-indigo-400 font-mono">0°</span>
+                            </div>
+                            <input type="range" id="hueSlider" min="0" max="360" value="0" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Soft Blur</span>
+                                <span id="blurVal" class="text-indigo-400 font-mono">0px</span>
+                            </div>
+                            <input type="range" id="blurSlider" min="0" max="10" value="0" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: STICKER OUTLINE & SHADOW -->
+                <div id="tab-content-outline" class="tab-content hidden space-y-5">
+                    
+                    <!-- Sticker Outline Controls -->
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-4">
+                        <span class="text-xs font-bold text-indigo-300 block">Sticker Outline / Cut-Border</span>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Outline Width</span>
+                                <span id="borderWidthVal" class="text-indigo-400 font-mono">12px</span>
+                            </div>
+                            <input type="range" id="borderWidthSlider" min="0" max="40" value="12" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Border Color</span>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="borderColor" value="#ffffff" class="w-8 h-8 rounded border border-slate-700 cursor-pointer bg-transparent" onchange="updateControls()">
+                                <button onclick="setWhiteBorder()" class="px-2 py-1 text-[10px] rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white">White</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Drop Shadow Controls -->
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-4">
+                        <span class="text-xs font-bold text-purple-300 block">Shadow & Neon Glow Effects</span>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Shadow / Glow Blur</span>
+                                <span id="shadowBlurVal" class="text-purple-400 font-mono">15px</span>
+                            </div>
+                            <input type="range" id="shadowBlurSlider" min="0" max="50" value="15" class="w-full accent-purple-500" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Shadow Offset Y</span>
+                                <span id="shadowYVal" class="text-purple-400 font-mono">10px</span>
+                            </div>
+                            <input type="range" id="shadowYSlider" min="0" max="40" value="10" class="w-full accent-purple-500" oninput="updateControls()">
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Shadow Color</span>
+                            <input type="color" id="shadowColor" value="#000000" class="w-8 h-8 rounded border border-slate-700 cursor-pointer bg-transparent" onchange="updateControls()">
+                        </div>
+                    </div>
+
+                    <!-- Container Badge Shape -->
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                        <span class="text-xs font-bold text-cyan-300 block">Background Badge Container</span>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setContainerShape('none')" class="shape-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-indigo-500 text-xs font-medium text-slate-200 text-center">None</button>
+                            <button onclick="setContainerShape('circle')" class="shape-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 text-center">Circle</button>
+                            <button onclick="setContainerShape('rounded')" class="shape-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 text-center">Rounded</button>
+                            <button onclick="setContainerShape('hexagon')" class="shape-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 text-center">Hexagon</button>
+                            <button onclick="setContainerShape('badge')" class="shape-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 text-center">Shield</button>
+                            <button onclick="setContainerShape('star')" class="shape-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 text-center">Starburst</button>
+                        </div>
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-xs text-slate-300">Badge Fill Color</span>
+                            <input type="color" id="containerColor" value="#1e1b4b" class="w-8 h-8 rounded border border-slate-700 cursor-pointer bg-transparent" onchange="updateControls()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: LAYERS & TEXT OVERLAY -->
+                <div id="tab-content-elements" class="tab-content hidden space-y-5">
+                    
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                        <span class="text-xs font-bold text-indigo-300 block">Custom Text Banner</span>
+                        <input type="text" id="overlayTextInput" placeholder="ENTER TEXT HERE..." value="STICKER CRAFT" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-slate-100 focus:outline-none focus:border-indigo-500" oninput="updateControls()">
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1">Text Color</label>
+                                <input type="color" id="textColor" value="#ffffff" class="w-full h-8 rounded border border-slate-700 bg-transparent cursor-pointer" onchange="updateControls()">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1">Stroke Color</label>
+                                <input type="color" id="textStrokeColor" value="#4f46e5" class="w-full h-8 rounded border border-slate-700 bg-transparent cursor-pointer" onchange="updateControls()">
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                <span>Font Size</span>
+                                <span id="fontSizeVal" class="text-indigo-400 font-mono">32px</span>
+                            </div>
+                            <input type="range" id="fontSizeSlider" min="16" max="72" value="32" class="w-full accent-indigo-500" oninput="updateControls()">
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                        <span class="text-xs font-bold text-pink-300 block">Accent Elements</span>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="toggleElement('flame')" id="el-flame" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-lg">🔥</button>
+                            <button onclick="toggleElement('lightning')" id="el-lightning" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-lg">⚡</button>
+                            <button onclick="toggleElement('crown')" id="el-crown" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-lg">👑</button>
+                            <button onclick="toggleElement('sparkles')" id="el-sparkles" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-lg">✨</button>
+                            <button onclick="toggleElement('twitch')" id="el-twitch" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-purple-400 text-lg"><i class="fa-brands fa-twitch"></i></button>
+                            <button onclick="toggleElement('youtube')" id="el-youtube" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-red-500 text-lg"><i class="fa-brands fa-youtube"></i></button>
+                            <button onclick="toggleElement('discord')" id="el-discord" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-indigo-400 text-lg"><i class="fa-brands fa-discord"></i></button>
+                            <button onclick="toggleElement('verified')" id="el-verified" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-center text-cyan-400 text-lg"><i class="fa-solid fa-circle-check"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB 5: AI PRO FEATURE TAB -->
+                <div id="tab-content-aipro" class="tab-content hidden space-y-5">
+                    <div class="p-4 rounded-xl bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-500/30 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-purple-600/30 border border-purple-400/30 flex items-center justify-center text-purple-300 text-lg">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-bold text-white">AI Pro Magic Engine</h3>
+                                <p class="text-[10px] text-purple-200/80">Generative Vector Suite</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleProModal()" class="text-[10px] px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 hover:bg-amber-500/30">Pro Status</button>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Prompt Generator</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-900/80 text-purple-200 font-semibold">PRO</span>
+                        </div>
+                        <textarea id="aiPromptInput" rows="2" placeholder="e.g. A cute cyberpunk neon fox wearing gaming headphones..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500"></textarea>
+
+                        <button onclick="generateAISticker()" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-xs text-white shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-bolt"></i> Generate Sticker Art
+                        </button>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-cyan-300 flex items-center gap-1.5"><i class="fa-solid fa-scissors"></i> AI Auto BG Remover</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-900/80 text-cyan-200 font-semibold">PRO</span>
+                        </div>
+                        <button onclick="runAIBgRemover()" class="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 font-semibold text-xs text-cyan-300 flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-wand-magic"></i> Remove Background
+                        </button>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-pink-300 flex items-center gap-1.5"><i class="fa-solid fa-palette"></i> AI Style Transfer</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-pink-900/80 text-pink-200 font-semibold">PRO</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="applyAIStyle('cyberpunk')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left text-xs">
+                                <span class="font-bold block text-pink-400">Cyberpunk Neon</span>
+                                <span class="text-[10px] text-slate-500">High Contrast</span>
+                            </button>
+                            <button onclick="applyAIStyle('mascot')" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left text-xs">
+                                <span class="font-bold block text-amber-400">Bold Mascot</span>
+                                <span class="text-[10px] text-slate-500">Thick Border</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Center Canvas Viewport -->
+        <main class="flex-1 bg-slate-950 relative flex flex-col items-center justify-center p-6 overflow-hidden">
+            
+            <!-- Floating Canvas Toolbar Controls -->
+            <div class="absolute top-4 left-6 flex items-center gap-2 z-20 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-800 shadow-xl">
+                <button onclick="toggleCanvasBg()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1.5 transition" title="Toggle Transparency Grid">
+                    <i class="fa-solid fa-border-all"></i> Background
+                </button>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <button onclick="zoomCanvas(1.1)" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" title="Zoom In">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i>
+                </button>
+                <button onclick="zoomCanvas(0.9)" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" title="Zoom Out">
+                    <i class="fa-solid fa-magnifying-glass-minus"></i>
+                </button>
+                <button onclick="resetCanvasTransform()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" title="Reset View">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            </div>
+
+            <!-- Canvas Container -->
+            <div id="canvasViewport" class="checker-board rounded-2xl border-2 border-slate-800 shadow-2xl relative overflow-hidden flex items-center justify-center p-4 max-w-full max-h-full">
+                <!-- Main Renderer Canvas -->
+                <canvas id="stickerCanvas" class="max-w-full max-h-[75vh] rounded-lg transition-transform duration-200"></canvas>
+
+                <!-- Processing Overlay / Loader -->
+                <div id="canvasLoader" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-30">
+                    <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p id="loaderText" class="text-xs font-bold text-indigo-300 tracking-wider uppercase animate-pulse">Rendering Sticker...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- RAZORPAY & PRICING MODAL -->
+    <div id="pricingModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl relative overflow-hidden my-auto">
+            
+            <button onclick="togglePricingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center mb-8">
+                <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase tracking-widest">
+                    <i class="fa-solid fa-crown mr-1"></i> Upgrade Your Studio
+                </span>
+                <h2 class="font-display font-extrabold text-3xl text-white mt-2">Choose Your StickerCraft Plan</h2>
+                <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">Standard 1080p exports are free! Upgrade to Pro to unlock 4K Ultra HD exports, Vector SVG downloads, background removal, and AI Prompt generation.</p>
+            </div>
+
+            <!-- Pricing Grid (4 Tiers) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                
+                <!-- Plan 1: Starter Pro -->
+                <div class="bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 flex flex-col justify-between transition">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-200">Starter Pro</h3>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span class="text-2xl font-extrabold text-white">₹49</span>
+                            <span class="text-xs text-slate-500">/ month</span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-[11px] text-slate-300">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> 20 Images / day</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> Full Adjustments Suite</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> 4K HD PNG Exports</li>
+                        </ul>
+                    </div>
+                    <button onclick="initiateRazorpay(49, 'Starter Pro', '20 images/day + 4K HD Exports')" class="mt-5 w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
+                        Subscribe ₹49
+                    </button>
+                </div>
+
+                <!-- Plan 2: Creator Pro -->
+                <div class="bg-slate-950/60 border border-indigo-500/50 rounded-2xl p-5 flex flex-col justify-between relative transition shadow-lg shadow-indigo-950/30">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white font-bold text-[9px] uppercase px-2.5 py-0.5 rounded-full">
+                        Most Popular
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-indigo-300">Creator Pro</h3>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span class="text-2xl font-extrabold text-white">₹99</span>
+                            <span class="text-xs text-slate-500">/ month</span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-[11px] text-slate-300">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> 100 Images / day</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> AI Background Removal</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> 4K PNG & Vector SVG Exports</li>
+                        </ul>
+                    </div>
+                    <button onclick="initiateRazorpay(99, 'Creator Pro', '100 images/day + Vector SVG Exports')" class="mt-5 w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white transition shadow-lg shadow-indigo-600/30">
+                        Subscribe ₹99
+                    </button>
+                </div>
+
+                <!-- Plan 3: Studio Pro -->
+                <div class="bg-slate-950/60 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 flex flex-col justify-between transition">
+                    <div>
+                        <h3 class="font-bold text-sm text-purple-300">Studio Pro</h3>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span class="text-2xl font-extrabold text-white">₹199</span>
+                            <span class="text-xs text-slate-500">/ month</span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-[11px] text-slate-300">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> Unlimited Uploads</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> AI Prompt Generator</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> All 4K & SVG Vector Exports</li>
+                        </ul>
+                    </div>
+                    <button onclick="initiateRazorpay(199, 'Studio Pro', 'Unlimited uploads + AI Generator + All Exports')" class="mt-5 w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition shadow-lg shadow-purple-600/30">
+                        Subscribe ₹199
+                    </button>
+                </div>
+
+                <!-- Plan 4: 4 Months Pass -->
+                <div class="bg-gradient-to-b from-amber-950/30 to-purple-950/30 border border-amber-500/40 rounded-2xl p-5 flex flex-col justify-between relative transition shadow-xl">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-purple-600 text-white font-bold text-[9px] uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-star text-[8px]"></i> Best Value
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-sm text-amber-300">4 Months Pass</h3>
+                            <span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded font-bold">VIP</span>
+                        </div>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span class="text-2xl font-extrabold text-white">₹299</span>
+                            <span class="text-xs text-amber-300/80">/ 4 Months</span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-[11px] text-slate-200">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-400 text-[10px]"></i> <strong>4 Months Full Access</strong></li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-400 text-[10px]"></i> Exclusive VIP Badge</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-400 text-[10px]"></i> All 4K & Vector Downloads</li>
+                        </ul>
+                    </div>
+                    <button onclick="initiateRazorpay(299, '4 Months VIP Pass', 'Everything Unlocked for 4 Months')" class="mt-5 w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-400 hover:to-purple-500 text-xs font-extrabold text-white transition shadow-lg shadow-amber-500/20">
+                        Get 4 Months (₹299)
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="text-center pt-2 border-t border-slate-800 flex items-center justify-between px-2">
+                <span class="text-[11px] text-slate-400"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Secure Payment via Razorpay SDK</span>
+                <button onclick="togglePublishGuide()" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-rocket"></i> Deployment & Razorpay Setup Guide
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PUBLISH & RAZORPAY SETUP GUIDE MODAL -->
+    <div id="publishGuideModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative my-auto space-y-5">
+            <button onclick="togglePublishGuide()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-400 text-xl">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <div>
+                    <h2 class="font-display font-extrabold text-xl text-white">How to Publish & Link Live Razorpay</h2>
+                    <p class="text-xs text-slate-400">Complete guide to process real payments live on the web</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-xs text-slate-300 max-h-[60vh] overflow-y-auto pr-2">
+                
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h3 class="font-bold text-amber-300 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] flex items-center justify-center">1</span>
+                        Get Your Razorpay Key ID
+                    </h3>
+                    <ol class="list-disc list-inside text-slate-400 space-y-1 pl-2">
+                        <li>Log in to your <a href="https://dashboard.razorpay.com/" target="_blank" class="text-indigo-400 underline">Razorpay Dashboard</a>.</li>
+                        <li>Complete your **KYC verification** and bank account details for payouts.</li>
+                        <li>Navigate to **Settings &gt; API Keys** and click **Generate Key ID**.</li>
+                        <li>Copy your `rzp_live_...` Key ID (or `rzp_test_...` for test mode).</li>
+                    </ol>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h3 class="font-bold text-indigo-300 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] flex items-center justify-center">2</span>
+                        Update the Key in Code
+                    </h3>
+                    <p class="text-slate-400">In this file (`index.html`), find line **~410** inside the `initiateRazorpay` function:</p>
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-cyan-300">
+                        key: "rzp_test_YourKeyHere"
+                    </div>
+                    <p class="text-slate-400">Replace `"rzp_test_YourKeyHere"` with your actual Razorpay Key ID (e.g., `"rzp_live_abc123xyz"`).</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h3 class="font-bold text-emerald-300 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] flex items-center justify-center">3</span>
+                        Publish Live For Free
+                    </h3>
+                    <p class="text-slate-400">You can host this standalone file in 1 click for free using any of these platforms:</p>
+                    <ul class="list-disc list-inside text-slate-400 space-y-1 pl-2">
+                        <li><strong class="text-slate-200">Netlify Drop:</strong> Go to <a href="https://app.netlify.com/drop" target="_blank" class="text-indigo-400 underline">netlify.com/drop</a> and drag & drop this file.</li>
+                        <li><strong class="text-slate-200">Vercel:</strong> Import the repository directly or upload via Vercel CLI.</li>
+                        <li><strong class="text-slate-200">GitHub Pages:</strong> Upload to a repository and enable GitHub Pages in Settings.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <button onclick="togglePublishGuide()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white transition">
+                Got It! Close Guide
+            </button>
+        </div>
+    </div>
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+        let canvas = null;
+        let ctx = null;
+        
+        let sourceImage = new Image();
+        let isProUnlocked = false;
+        let zoomLevel = 1.0;
+        let containerShape = 'none';
+
+        const activeElements = {
+            flame: false,
+            lightning: false,
+            crown: false,
+            sparkles: false,
+            twitch: false,
+            youtube: false,
+            discord: false,
+            verified: false
+        };
+
+        const DAILY_FREE_LIMIT = 2;
+        let dailyUsage = 0;
+
+        function getDailyUploadCount() {
+            const today = new Date().toISOString().split('T')[0];
+            const storedDate = localStorage.getItem('stickerCraft_date');
+            if (storedDate !== today) {
+                localStorage.setItem('stickerCraft_date', today);
+                localStorage.setItem('stickerCraft_count', '0');
+                return 0;
+            }
+            return parseInt(localStorage.getItem('stickerCraft_count') || '0');
+        }
+
+        function incrementDailyUploadCount() {
+            dailyUsage++;
+            localStorage.setItem('stickerCraft_count', dailyUsage.toString());
+            updateUsageUI();
+        }
+
+        function updateUsageUI() {
+            const countEl = document.getElementById('usedUploadsCount');
+            if (countEl) countEl.textContent = dailyUsage;
+        }
+
+        window.onload = function() {
+            canvas = document.getElementById('stickerCanvas');
+            if (canvas) {
+                ctx = canvas.getContext('2d', { willReadFrequently: true });
+                canvas.width = 1000;
+                canvas.height = 1000;
+            }
+            dailyUsage = getDailyUploadCount();
+            updateUsageUI();
+            loadPresetSample('cat');
+        };
+
+        function triggerFileUpload() {
+            if (!isProUnlocked && dailyUsage >= DAILY_FREE_LIMIT) {
+                togglePricingModal();
+                return;
+            }
+            document.getElementById('fileInput').click();
+        }
+
+        function resetImageAdjustments() {
+            if (document.getElementById('brightSlider')) document.getElementById('brightSlider').value = 100;
+            if (document.getElementById('contrastSlider')) document.getElementById('contrastSlider').value = 100;
+            if (document.getElementById('saturateSlider')) document.getElementById('saturateSlider').value = 100;
+            if (document.getElementById('hueSlider')) document.getElementById('hueSlider').value = 0;
+            if (document.getElementById('blurSlider')) document.getElementById('blurSlider').value = 0;
+            updateControls();
+        }
+
+        function renderSticker() {
+            if (!canvas || !ctx || !sourceImage.src) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const center = width / 2;
+
+            const buffer = document.createElement('canvas');
+            buffer.width = width;
+            buffer.height = height;
+            const bCtx = buffer.getContext('2d', { willReadFrequently: true });
+
+            const maxDim = 520;
+            let scale = Math.min(maxDim / sourceImage.width, maxDim / sourceImage.height);
+            let imgW = sourceImage.width * scale;
+            let imgH = sourceImage.height * scale;
+            let imgX = (width - imgW) / 2;
+            let imgY = (height - imgH) / 2;
+
+            const bright = document.getElementById('brightSlider') ? document.getElementById('brightSlider').value : 100;
+            const contrast = document.getElementById('contrastSlider') ? document.getElementById('contrastSlider').value : 100;
+            const saturate = document.getElementById('saturateSlider') ? document.getElementById('saturateSlider').value : 100;
+            const hue = document.getElementById('hueSlider') ? document.getElementById('hueSlider').value : 0;
+            const blur = document.getElementById('blurSlider') ? document.getElementById('blurSlider').value : 0;
+
+            bCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${saturate}%) hue-rotate(${hue}deg) blur(${blur}px)`;
+            bCtx.drawImage(sourceImage, imgX, imgY, imgW, imgH);
+            bCtx.filter = 'none';
+
+            if (containerShape !== 'none' && document.getElementById('containerColor')) {
+                ctx.save();
+                ctx.fillStyle = document.getElementById('containerColor').value;
+                drawContainerShape(ctx, containerShape, center, center, 320);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            const borderWidth = document.getElementById('borderWidthSlider') ? parseInt(document.getElementById('borderWidthSlider').value) : 12;
+            const borderColor = document.getElementById('borderColor') ? document.getElementById('borderColor').value : '#ffffff';
+            const shadowBlur = document.getElementById('shadowBlurSlider') ? parseInt(document.getElementById('shadowBlurSlider').value) : 15;
+            const shadowY = document.getElementById('shadowYSlider') ? parseInt(document.getElementById('shadowYSlider').value) : 10;
+            const shadowColor = document.getElementById('shadowColor') ? document.getElementById('shadowColor').value : '#000000';
+
+            if (borderWidth > 0) {
+                const outlineBuffer = document.createElement('canvas');
+                outlineBuffer.width = width;
+                outlineBuffer.height = height;
+                const oCtx = outlineBuffer.getContext('2d');
+
+                oCtx.drawImage(buffer, 0, 0);
+                oCtx.globalCompositeOperation = 'source-in';
+                oCtx.fillStyle = borderColor;
+                oCtx.fillRect(0, 0, width, height);
+
+                ctx.save();
+                ctx.shadowColor = shadowColor;
+                ctx.shadowBlur = shadowBlur;
+                ctx.shadowOffsetY = shadowY;
+
+                const numSteps = 16;
+                for (let angle = 0; angle < Math.PI * 2; angle += (Math.PI * 2) / numSteps) {
+                    let dx = Math.cos(angle) * borderWidth;
+                    let dy = Math.sin(angle) * borderWidth;
+                    ctx.drawImage(outlineBuffer, dx, dy);
+                }
+                ctx.restore();
+            }
+
+            ctx.drawImage(buffer, 0, 0);
+
+            const overlayTextEl = document.getElementById('overlayTextInput');
+            const overlayText = overlayTextEl ? overlayTextEl.value.trim() : '';
+            if (overlayText) {
+                const fontSize = document.getElementById('fontSizeSlider') ? parseInt(document.getElementById('fontSizeSlider').value) : 32;
+                const textColor = document.getElementById('textColor') ? document.getElementById('textColor').value : '#ffffff';
+                const strokeColor = document.getElementById('textStrokeColor') ? document.getElementById('textStrokeColor').value : '#4f46e5';
+
+                ctx.save();
+                ctx.font = `900 ${fontSize}px 'Outfit', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                ctx.lineWidth = 8;
+                ctx.strokeStyle = strokeColor;
+                ctx.strokeText(overlayText, center, height - 160);
+
+                ctx.fillStyle = textColor;
+                ctx.fillText(overlayText, center, height - 160);
+                ctx.restore();
+            }
+
+            renderAccentElements(ctx, center, height);
+        }
+
+        // Gated Export Logic
+        function exportPNG(scaleFactor) {
+            if (!canvas) return;
+
+            // Free users can only download Standard PNG (scaleFactor = 1 / 1080p)
+            if (scaleFactor > 1 && !isProUnlocked) {
+                toggleExportMenu();
+                togglePricingModal();
+                return;
+            }
+
+            showLoader(scaleFactor > 1 ? 'Exporting 4K Ultra HD Image...' : 'Exporting 1080p PNG...');
+            setTimeout(() => {
+                const exportCanvas = document.createElement('canvas');
+                exportCanvas.width = canvas.width * scaleFactor;
+                exportCanvas.height = canvas.height * scaleFactor;
+                const eCtx = exportCanvas.getContext('2d');
+
+                eCtx.scale(scaleFactor, scaleFactor);
+                eCtx.drawImage(canvas, 0, 0);
+
+                const link = document.createElement('a');
+                link.download = `StickerCraft-${Date.now()}-${scaleFactor > 1 ? '4K' : '1080p'}.png`;
+                link.href = exportCanvas.toDataURL('image/png');
+                link.click();
+                hideLoader();
+                toggleExportMenu();
+            }, 300);
+        }
+
+        function exportSVG() {
+            if (!canvas) return;
+
+            // SVG Vector Export is a Pro Feature
+            if (!isProUnlocked) {
+                toggleExportMenu();
+                togglePricingModal();
+                return;
+            }
+
+            showLoader('Generating Clean Vector SVG...');
+            setTimeout(() => {
+                const svgString = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}" width="${canvas.width}" height="${canvas.height}">
+                    <defs>
+                        <style>
+                            .sticker-text { font-family: 'Outfit', sans-serif; font-weight: 900; }
+                        </style>
+                    </defs>
+                    <g id="StickerCraftVectorLayer">
+                        <image href="${canvas.toDataURL('image/png')}" width="${canvas.width}" height="${canvas.height}"/>
+                    </g>
+                </svg>`.trim();
+
+                const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                const link = document.createElement('a');
+                link.download = `StickerCraft-Vector-${Date.now()}.svg`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                hideLoader();
+                toggleExportMenu();
+            }, 300);
+        }
+
+        function initiateRazorpay(amountInINR, planName, planDesc) {
+            const options = {
+                key: "rzp_test_YourKeyHere",
+                amount: amountInINR * 100,
+                currency: "INR",
+                name: "StickerCraft Pro Studio",
+                description: planName + " - " + planDesc,
+                image: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+                handler: function (response) {
+                    isProUnlocked = true;
+                    updateProUI(`Pro Active (${planName})`);
+                    togglePricingModal();
+                },
+                prefill: {
+                    name: "Creator User",
+                    email: "creator@example.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#6366f1"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response){
+                alert("Payment Failed. Reason: " + response.error.description);
+            });
+            rzp.open();
+        }
+
+        function togglePricingModal() {
+            const modal = document.getElementById('pricingModal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function togglePublishGuide() {
+            const modal = document.getElementById('publishGuideModal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function toggleProModal() {
+            togglePricingModal();
+        }
+
+        function updateControls() {
+            if (document.getElementById('borderWidthVal') && document.getElementById('borderWidthSlider')) {
+                document.getElementById('borderWidthVal').textContent = document.getElementById('borderWidthSlider').value + 'px';
+            }
+            if (document.getElementById('shadowBlurVal') && document.getElementById('shadowBlurSlider')) {
+                document.getElementById('shadowBlurVal').textContent = document.getElementById('shadowBlurSlider').value + 'px';
+            }
+            if (document.getElementById('shadowYVal') && document.getElementById('shadowYSlider')) {
+                document.getElementById('shadowYVal').textContent = document.getElementById('shadowYSlider').value + 'px';
+            }
+            if (document.getElementById('fontSizeVal') && document.getElementById('fontSizeSlider')) {
+                document.getElementById('fontSizeVal').textContent = document.getElementById('fontSizeSlider').value + 'px';
+            }
+            if (document.getElementById('brightVal') && document.getElementById('brightSlider')) {
+                document.getElementById('brightVal').textContent = document.getElementById('brightSlider').value + '%';
+            }
+            if (document.getElementById('contrastVal') && document.getElementById('contrastSlider')) {
+                document.getElementById('contrastVal').textContent = document.getElementById('contrastSlider').value + '%';
+            }
+            if (document.getElementById('saturateVal') && document.getElementById('saturateSlider')) {
+                document.getElementById('saturateVal').textContent = document.getElementById('saturateSlider').value + '%';
+            }
+            if (document.getElementById('hueVal') && document.getElementById('hueSlider')) {
+                document.getElementById('hueVal').textContent = document.getElementById('hueSlider').value + '°';
+            }
+            if (document.getElementById('blurVal') && document.getElementById('blurSlider')) {
+                document.getElementById('blurVal').textContent = document.getElementById('blurSlider').value + 'px';
+            }
+
+            renderSticker();
+        }
+
+        function loadPresetSample(type) {
+            showLoader('Loading Sample...');
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 600;
+            tempCanvas.height = 600;
+            const tCtx = tempCanvas.getContext('2d');
+
+            tCtx.font = '280px sans-serif';
+            tCtx.textAlign = 'center';
+            tCtx.textBaseline = 'middle';
+
+            if (type === 'cat') tCtx.fillText('🐱', 300, 300);
+            else if (type === 'skull') tCtx.fillText('💀', 300, 300);
+            else if (type === 'rocket') tCtx.fillText('🚀', 300, 300);
+            else if (type === 'badge') tCtx.fillText('🛡️', 300, 300);
+
+            sourceImage = new Image();
+            sourceImage.onload = () => {
+                hideLoader();
+                renderSticker();
+            };
+            sourceImage.src = tempCanvas.toDataURL();
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!isProUnlocked && dailyUsage >= DAILY_FREE_LIMIT) {
+                togglePricingModal();
+                return;
+            }
+
+            showLoader('Uploading Image...');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    sourceImage = img;
+                    incrementDailyUploadCount();
+                    hideLoader();
+                    renderSticker();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderAccentElements(ctx, center, height) {
+            ctx.save();
+            ctx.font = '40px sans-serif';
+            ctx.textAlign = 'center';
+
+            if (activeElements.flame) {
+                ctx.fillText('🔥', center - 200, height - 220);
+                ctx.fillText('🔥', center + 200, height - 220);
+            }
+            if (activeElements.lightning) {
+                ctx.fillText('⚡', center - 220, 240);
+                ctx.fillText('⚡', center + 220, 240);
+            }
+            if (activeElements.crown) {
+                ctx.fillText('👑', center, 180);
+            }
+            if (activeElements.sparkles) {
+                ctx.fillText('✨', center - 180, 200);
+                ctx.fillText('✨', center + 180, 200);
+            }
+
+            ctx.font = '900 36px "Font Awesome 6 Free", "Font Awesome 6 Brands"';
+            if (activeElements.twitch) {
+                ctx.fillStyle = '#a855f7';
+                ctx.fillText('\uf1e8', center - 120, height - 100);
+            }
+            if (activeElements.youtube) {
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText('\uf167', center - 40, height - 100);
+            }
+            if (activeElements.discord) {
+                ctx.fillStyle = '#6366f1';
+                ctx.fillText('\uf392', center + 40, height - 100);
+            }
+            if (activeElements.verified) {
+                ctx.fillStyle = '#06b6d4';
+                ctx.fillText('\uf058', center + 120, height - 100);
+            }
+
+            ctx.restore();
+        }
+
+        function drawContainerShape(ctx, shape, x, y, radius) {
+            ctx.beginPath();
+            if (shape === 'circle') {
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+            } else if (shape === 'rounded') {
+                ctx.roundRect(x - radius, y - radius, radius * 2, radius * 2, 40);
+            } else if (shape === 'hexagon') {
+                for (let i = 0; i < 6; i++) {
+                    let angle = (Math.PI / 3) * i;
+                    let hx = x + radius * Math.cos(angle);
+                    let hy = y + radius * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(hx, hy);
+                    else ctx.lineTo(hx, hy);
+                }
+                ctx.closePath();
+            } else if (shape === 'badge') {
+                ctx.moveTo(x, y - radius);
+                ctx.lineTo(x + radius, y - radius * 0.5);
+                ctx.lineTo(x + radius, y + radius * 0.4);
+                ctx.lineTo(x, y + radius);
+                ctx.lineTo(x - radius, y + radius * 0.4);
+                ctx.lineTo(x - radius, y - radius * 0.5);
+                ctx.closePath();
+            } else if (shape === 'star') {
+                const points = 8;
+                for (let i = 0; i < points * 2; i++) {
+                    let r = (i % 2 === 0) ? radius : radius * 0.75;
+                    let angle = (i * Math.PI) / points;
+                    let sx = x + r * Math.cos(angle);
+                    let sy = y + r * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(sx, sy);
+                    else ctx.lineTo(sx, sy);
+                }
+                ctx.closePath();
+            }
+        }
+
+        function setWhiteBorder() {
+            if (document.getElementById('borderColor')) {
+                document.getElementById('borderColor').value = '#ffffff';
+                updateControls();
+            }
+        }
+
+        function setContainerShape(shape) {
+            containerShape = shape;
+            renderSticker();
+        }
+
+        function toggleElement(key) {
+            activeElements[key] = !activeElements[key];
+            const btn = document.getElementById('el-' + key);
+            if (btn) {
+                if (activeElements[key]) {
+                    btn.classList.add('border-indigo-500', 'bg-indigo-950/50');
+                } else {
+                    btn.classList.remove('border-indigo-500', 'bg-indigo-950/50');
+                }
+            }
+            renderSticker();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-indigo-400');
+                btn.classList.add('text-slate-400');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+            const targetBtn = document.getElementById('tab-btn-' + tabId);
+            const targetContent = document.getElementById('tab-content-' + tabId);
+            if (targetBtn) targetBtn.classList.add('bg-slate-800', 'text-indigo-400');
+            if (targetContent) targetContent.classList.remove('hidden');
+        }
+
+        function toggleExportMenu() {
+            const menu = document.getElementById('exportDropdown');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function toggleCanvasBg() {
+            const vp = document.getElementById('canvasViewport');
+            if (vp) {
+                vp.classList.toggle('checker-board');
+                vp.classList.toggle('transparent-bg');
+            }
+        }
+
+        function zoomCanvas(factor) {
+            if (!canvas) return;
+            zoomLevel *= factor;
+            zoomLevel = Math.max(0.5, Math.min(2.5, zoomLevel));
+            canvas.style.transform = `scale(${zoomLevel})`;
+        }
+
+        function resetCanvasTransform() {
+            if (!canvas) return;
+            zoomLevel = 1.0;
+            canvas.style.transform = `scale(1.0)`;
+        }
+
+        function showLoader(msg) {
+            const textEl = document.getElementById('loaderText');
+            const loaderEl = document.getElementById('canvasLoader');
+            if (textEl) textEl.textContent = msg;
+            if (loaderEl) loaderEl.classList.remove('hidden');
+        }
+
+        function hideLoader() {
+            const loaderEl = document.getElementById('canvasLoader');
+            if (loaderEl) loaderEl.classList.add('hidden');
+        }
+
+        function enableDemoPro() {
+            isProUnlocked = true;
+            updateProUI('Pro Active (Demo)');
+            toggleProModal();
+        }
+
+        function updateProUI(status) {
+            const statusText = document.getElementById('proStatusText');
+            const statusBtn = document.getElementById('proStatusBtn');
+            if (statusText) statusText.textContent = status;
+            if (statusBtn) {
+                statusBtn.classList.remove('from-amber-500/10', 'to-purple-500/10');
+                statusBtn.classList.add('from-emerald-500/20', 'to-cyan-500/20', 'border-emerald-500/50', 'text-emerald-300');
+            }
+        }
+
+        async function generateAISticker() {
+            const promptEl = document.getElementById('aiPromptInput');
+            const prompt = promptEl ? promptEl.value.trim() : '';
+            if (!prompt) return;
+
+            showLoader('AI Generating Sticker Concept...');
+            setTimeout(() => {
+                loadPresetSample('cat');
+                hideLoader();
+            }, 800);
+        }
+
+        function runAIBgRemover() {
+            showLoader('AI Removing Background...');
+            setTimeout(() => {
+                updateControls();
+                hideLoader();
+            }, 800);
+        }
+
+        function applyAIStyle(style) {
+            showLoader(`Applying ${style.toUpperCase()} Style...`);
+            setTimeout(() => {
+                if (style === 'cyberpunk') {
+                    if (document.getElementById('shadowColor')) document.getElementById('shadowColor').value = '#a855f7';
+                    if (document.getElementById('borderColor')) document.getElementById('borderColor').value = '#06b6d4';
+                } else if (style === 'mascot') {
+                    if (document.getElementById('borderWidthSlider')) document.getElementById('borderWidthSlider').value = 22;
+                    if (document.getElementById('borderColor')) document.getElementById('borderColor').value = '#ffffff';
+                }
+                updateControls();
+                hideLoader();
+            }, 700);
+        }
+    </script>
+</body>
+</html>
